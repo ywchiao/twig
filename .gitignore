@@ -1,0 +1,41 @@
+# nginx/uwsgi config files.
+nginx.conf
+uwsgi.ini
+
+# https config file.
+.ssh
+.ssl
+
+# temporary files for report generating.
+.data
+
+# compiled js files.
+htdocs/agate/js/
+htdocs/agate/libs/
+coverage/
+out/
+
+# log file
+log/
+
+# Ds_Store
+.DS_Store
+
+# node.js
+node_modules/
+
+# Python compiled file
+*.pyc
+
+# Python virtual env
+.agatem
+.hqt
+.hqtlims
+.venv
+
+# generic files
+*~
+*.lock
+*.swp
+
+# .gitignore
