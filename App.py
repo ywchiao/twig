@@ -1,44 +1,94 @@
 
 import curses
+import types
 
 from Frame.Frame import Frame
 
 class App():
-    def __init__(self):
+    def __init__(self, stdscr):
+        self._queue = []
         self._frames = []
 
-        curses.wrapper(self._start)
+        self._focused = None
 
-    def _start(self, stdscr):
-        curses.mousemask(1)
-        stdscr.nodelay(True)
+        self.MOUSE_CLICK = 0
+        self.KEY_PRESSED = 1
+        self.CMD_EXIT = 2
 
         self._window = stdscr
-        self._frames.append(Frame(10, 10, "test"))
 
-        self._paint(0, 0)
+    def addComponent(self, frame):
+        self._frames.append(frame)
 
-        while True:
-            e = self._window.getch()
+        if not self._focused:
+            self._focused = frame
 
-            if e == ord("q"):
-                break
-
-            if e == curses.KEY_MOUSE:
-                _, x, y, _, _ = curses.getmouse()
-
-                self._paint(x, y)
-
-    def _paint(self, x, y):
-        self._window.clear()
+    def paint(self):
         self._window.border()
-        self._window.addstr(2, 2, f"mouse clicked: x: {x:02}, y: {y:02}")
+        self._window.refresh()
 
         for frame in self._frames:
             frame.paint()
 
-        self._window.refresh()
-#        self._frames[0].moveTo(x, y)
+    def start(self):
+        self._loop()
+
+    def _checkInput(self):
+        e = self._window.getch()
+        event = None
+
+        if e == ord("q"):
+            self._queue.append(
+                types.SimpleNamespace(
+                    type=self.CMD_EXIT
+                )
+            )
+        elif e == curses.KEY_MOUSE:
+            _, x, y, _, _ = curses.getmouse()
+
+            self._queue.append(
+                types.SimpleNamespace(
+                    type=self.CLICK, x=x, y=y
+                )
+            )
+        elif e > 0:
+            self._queue.append(
+                types.SimpleNamespace(
+                    type=self.KEY_PRESSED, key=e
+                )
+            )
+
+    def _loop(self):
+        curses.mousemask(1)
+        self._window.nodelay(True)
+
+        self.paint()
+
+        while True:
+            self._checkInput()
+
+            for e in self._queue:
+                if e.type == self.CMD_EXIT:
+                    exit()
+
+                if e.type == self.KEY_PRESSED:
+                    self._focused.handle(e.key)
+                    self.paint()
+
+            self._queue = []
+
+def main(stdscr):
+    app = App(stdscr)
+
+    frame = Frame(30, 10, "this is a test")
+    frame.addHandler(ord("w"), lambda : frame.move(0, -1))
+    frame.addHandler(ord("a"), lambda : frame.move(-1, 0))
+    frame.addHandler(ord("s"), lambda : frame.move(0, 1))
+    frame.addHandler(ord("d"), lambda : frame.move(1, 0))
+
+    app.addComponent(frame)
+
+    app.start()
 
 if __name__ == "__main__":
-    app = App()
+    curses.wrapper(main)
