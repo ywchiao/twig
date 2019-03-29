@@ -1,8 +1,10 @@
+#!/usr/bin/python3
 
 import curses
 import types
 
 from Frame.Frame import Frame
+from WindowManager.Manager import WindowManager
 
 class App():
     def __init__(self, stdscr):
@@ -16,21 +18,19 @@ class App():
         self.CMD_EXIT = 2
 
         self._window = stdscr
-
-    def addComponent(self, frame):
-        self._frames.append(frame)
-
-        if not self._focused:
-            self._focused = frame
+        WindowManager.register(stdscr)
 
     def paint(self):
         self._window.border()
         self._window.refresh()
 
-        for frame in self._frames:
+        for k, frame in WindowManager.getFrames():
             frame.paint()
 
     def start(self):
+        frames = WindowManager.getFrames()
+        self._focused = frames[len(frames) - 1][1]
+
         self._loop()
 
     def _checkInput(self):
@@ -48,7 +48,7 @@ class App():
 
             self._queue.append(
                 types.SimpleNamespace(
-                    type=self.CLICK, x=x, y=y
+                    type=self.MOUSE_CLICK, x=x, y=y
                 )
             )
         elif e > 0:
@@ -70,23 +70,40 @@ class App():
             for e in self._queue:
                 if e.type == self.CMD_EXIT:
                     exit()
-
-                if e.type == self.KEY_PRESSED:
+                elif e.type == self.KEY_PRESSED:
                     self._focused.handle(e.key)
+                    self.paint()
+                else:
+                    self._clicked(e)
                     self.paint()
 
             self._queue = []
 
+    def _clicked(self, e):
+        k, self._focused = WindowManager.checkClicked(e.x, e.y)
+
 def main(stdscr):
     app = App(stdscr)
 
-    frame = Frame(30, 10, "this is a test")
-    frame.addHandler(ord("w"), lambda : frame.move(0, -1))
-    frame.addHandler(ord("a"), lambda : frame.move(-1, 0))
-    frame.addHandler(ord("s"), lambda : frame.move(0, 1))
-    frame.addHandler(ord("d"), lambda : frame.move(1, 0))
+    frameOne = Frame(30, 10, "window one")
+    frameOne.addHandler(ord("w"), lambda : frameOne.move(0, -1))
+    frameOne.addHandler(ord("a"), lambda : frameOne.move(-1, 0))
+    frameOne.addHandler(ord("s"), lambda : frameOne.move(0, 1))
+    frameOne.addHandler(ord("d"), lambda : frameOne.move(1, 0))
 
-    app.addComponent(frame)
+    frameTwo = Frame(30, 10, "window two")
+    frameTwo.addHandler(ord("w"), lambda : frameTwo.move(0, -1))
+    frameTwo.addHandler(ord("a"), lambda : frameTwo.move(-1, 0))
+    frameTwo.addHandler(ord("s"), lambda : frameTwo.move(0, 1))
+    frameTwo.addHandler(ord("d"), lambda : frameTwo.move(1, 0))
+    frameTwo.moveTo(10, 7)
+
+    frameThree = Frame(30, 10, "window three")
+    frameThree.addHandler(ord("w"), lambda : frameThree.move(0, -1))
+    frameThree.addHandler(ord("a"), lambda : frameThree.move(-1, 0))
+    frameThree.addHandler(ord("s"), lambda : frameThree.move(0, 1))
+    frameThree.addHandler(ord("d"), lambda : frameThree.move(1, 0))
+    frameThree.moveTo(17, 13)
 
     app.start()
 

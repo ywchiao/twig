@@ -1,18 +1,24 @@
 import curses
 
+from WindowManager.Manager import WindowManager
+
 """
    Frame: +--------+
           |Title   |
           +--------+
           |Content |
+          |status  |
           +--------+
  """
 class Frame():
     def __init__(self, width, height, caption):
         self._win = curses.newwin(height, width, 0, 0)
         self._titlebar = self._win.derwin(3, width, 0, 0)
+        self._status = self._win.derwin(1, width, height - 1, 0)
         self._caption = caption
         self._handlers = {}
+
+        WindowManager.register(self)
 
     def handle(self, key):
         handled = False
@@ -24,6 +30,12 @@ class Frame():
 
     def addHandler(self, key, fun):
         self._handlers[key] = fun
+
+    def dimension(self):
+        up, left = self._win.getbegyx()
+        height, width = self._win.getmaxyx()
+
+        return (left, up, width, height)
 
     def paint(self):
         self._win.addstr(1, 1, f"win: {self._caption}")
