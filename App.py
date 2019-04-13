@@ -3,6 +3,7 @@
 import curses
 import types
 
+from Button.Button import Button
 from Frame.Frame import Frame
 from WindowManager.Manager import WindowManager
 
@@ -85,6 +86,8 @@ class App():
 def main(stdscr):
     app = App(stdscr)
 
+    curses.init_pair(1, curses.COLOR_BLACK, 250)
+
     frameOne = Frame(30, 10, "window one")
     frameOne.addHandler(ord("w"), lambda : frameOne.move(0, -1))
     frameOne.addHandler(ord("a"), lambda : frameOne.move(-1, 0))
@@ -104,6 +107,10 @@ def main(stdscr):
     frameThree.addHandler(ord("s"), lambda : frameThree.move(0, 1))
     frameThree.addHandler(ord("d"), lambda : frameThree.move(1, 0))
     frameThree.moveTo(17, 13)
+
+    button = Button("Ok")
+    button.moveTo(40, 20)
+    frameThree.addComponent(button)
 
     app.start()
 
