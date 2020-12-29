@@ -4,8 +4,9 @@ from __future__ import annotations
 from const.color import Color
 from container.container import Container
 from event.event import Event
-from logcat.logcat import LogCat
 from viewport.viewport import Viewport
+
+from logcat.logcat import LogCat
 
 class Window(Container):
     @LogCat.log_func
@@ -24,11 +25,9 @@ class Window(Container):
 
         self.set_background(Color.TEXT)
 
-        self._handlers = {
-            Event.CLICK: self._on_click,
-            Event.KEY_PRESSED: self._on_key_pressed,
-            Event.PAINT: self._on_paint,
-        }
+        self.on(Event.CLICK, self._on_click)
+        self.on(Event.KEY_PRESSED, self._on_key_pressed)
+        self.on(Event.PAINT, self._on_paint)
 
     @LogCat.log_func
     def move(self, off_x: int, off_y: int) -> Window:
@@ -81,7 +80,7 @@ class Window(Container):
         (
             self._win
                 .border()
-                .print_text(1, 0, f"┨ {self._caption} ┠")
+                .print_text(1, 0, f'┨ {self._caption} ┠')
                 .refresh()
         )
 

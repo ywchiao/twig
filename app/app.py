@@ -2,11 +2,15 @@
 from __future__ import annotations
 
 import curses
+import socket
 
+from config.config import CONFIG
 from event.event import Event
-from handler.handler import Handler
-from logcat.logcat import LogCat
+from event.handler import Handler
+from message.out_stream import OutStream
 from window_manager.window_manager import WindowManager
+
+from logcat.logcat import LogCat
 
 class App(Handler):
     @LogCat.log_func
@@ -16,12 +20,14 @@ class App(Handler):
         self._window = stdscr
         self._window_manager = WindowManager()
 
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
         self.on(Event.CURSOR_ON, lambda _: curses.curs_set(True))
         self.on(Event.CURSOR_OFF, lambda _: curses.curs_set(False))
         self.on(Event.WIN_DISPLAY, self._on_win_display)
 
     @LogCat.log_func
-    def add(self, window: Window, modal: bool =False) -> App:
+    def add(self, window: Window, modal: bool = False) -> App:
         self._window_manager.add(window, modal)
 
         return self
@@ -35,13 +41,16 @@ class App(Handler):
 
     @LogCat.log_func
     def start(self) -> None:
+        self._socket.connect((CONFIG.IP, CONFIG.PORT))
+        self._socket.setblocking(0)
+
         self._loop()
 
     def _check_input(self) -> None:
         try:
             e = self._window.get_wch()
 
-            if e == "q":
+            if e == 'q':
                 Event.trigger(
                     Event(Event.EXIT, self)
                 )
@@ -55,7 +64,7 @@ class App(Handler):
                     )
                 )
             elif type(e) == str:
-                LogCat.log(f"keypressed: {e}")
+                LogCat.log(f'keypressed: {e}')
     #        elif e > 0:
                 Event.trigger(
                     Event(
@@ -75,8 +84,7 @@ class App(Handler):
 
         self._in_stream()
 
-    @LogCat.log_func
-    def _in_stream(self) -> None:
+    def _in_stream(self):
         pass
 
     @LogCat.log_func
@@ -100,6 +108,8 @@ class App(Handler):
 
                 self.paint()
 
+            OutStream.instance('').write(self._socket)
+
     @LogCat.log_func
     def _on_win_display(self, e: Event, uid: str, display: bool) -> None:
         self._window_manager.display(uid, display)
@@ -108,7 +118,7 @@ class App(Handler):
     def win_manager(self) -> WindowManager:
         return self._window_manager
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
 
 # app.py

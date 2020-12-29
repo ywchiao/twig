@@ -4,25 +4,26 @@ from __future__ import annotations
 from component.component import Component
 from const.color import Color
 from event.event import Event
+
 from logcat.logcat import LogCat
 
 class ScrollBar(Component):
-    ARROW_UP = "▲"
-    ARROW_DOWN = "▼"
-    ARROW_LEFT = "◄"
-    ARROW_RIGHT = "►"
-    INDICATOR = "◙"
+    ARROW_UP = '▲'
+    ARROW_DOWN = '▼'
+    ARROW_LEFT = '◄'
+    ARROW_RIGHT = '►'
+    INDICATOR = '◙'
 
     def __init__(self, x: int, y: int, width: int, height: int):
         super().__init__(x, y, width, height)
 
         self._vertical = True
-        self._place_holder = " "
+        self._place_holder = ' '
         self._at = y + 1
 
         if 1 == height:
             self._vertical = False
-            self._place_holder = " " * width
+            self._place_holder = ' ' * width
             self._at = x + 1
 
         self.on(Event.CLICK, self._on_click)

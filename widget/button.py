@@ -1,6 +1,7 @@
 
 from const.color import Color
 from component.component import Component
+
 from logcat.logcat import LogCat
 
 class Button(Component):
@@ -8,12 +9,8 @@ class Button(Component):
     def __init__(self, x:int, y: int, text: str):
         super().__init__(x, y, 6)
 
-        self._place_holder = " " * 6
+        self._place_holder = ' ' * 6
         self._text = text
-
-        self._handlers = {
-            "click": self._click
-        }
 
     @LogCat.log_func
     def paint(self, win):
@@ -28,9 +25,5 @@ class Button(Component):
             self._text,
             Color.BUTTON
         )
-
-    @LogCat.log_func
-    def _click(self):
-        pass
 
 # button.py

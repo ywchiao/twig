@@ -4,8 +4,9 @@ from __future__ import annotations
 from const.color import Color
 from component.component import Component
 from event.event import Event
+from widget.scroll_bar import ScrollBar
+
 from logcat.logcat import LogCat
-from scroll_bar.scroll_bar import ScrollBar
 
 class TextBox(Component):
     @LogCat.log_func
@@ -14,7 +15,7 @@ class TextBox(Component):
 
         self._text = []
         self._top_line = 0
-        self._place_holder = " " * width
+        self._place_holder = ' ' * width
 #        self._hbar = ScrollBar(1, y + height - 1, width, 1)
         self._vbar = ScrollBar(x + width - 1, 1, 1, height - 1)
 
@@ -29,14 +30,14 @@ class TextBox(Component):
     def add_text(self, text):
         self._text.append(text)
 
-        if len(self._text) > self.height:
+        if len(self._text) >= self.height:
             self._top_line += 1
             self._adjust_scroll_bar()
 
     @LogCat.log_func
     def paint(self, win):
         for y in range(1, self._height):
-            line = self._top_line + y
+            line = self._top_line + y - 1
 
             if line >= len(self._text):
                 break

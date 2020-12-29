@@ -2,9 +2,9 @@
 
 import curses
 
-from .mute import Mute
-
 from const.color import Color
+from mute.mute import Mute
+
 from logcat.logcat import LogCat
 
 @LogCat.log_func
@@ -44,7 +44,7 @@ def main(stdscr):
     a = Mute(stdscr)
     a.start()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     curses.wrapper(main)
 
 # main.py

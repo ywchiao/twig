@@ -1,10 +1,11 @@
 
 from __future__ import annotations
 
-from button.button import Button
 from event.event import Event
+from widget.button import Button
+from widget.window import Window
+
 from logcat.logcat import LogCat
-from window.window import Window
 
 class Dialog(Window):
     @LogCat.log_func
@@ -15,8 +16,8 @@ class Dialog(Window):
         self._caption = None
         self._modal = True
 
-        self._btn_ok = Button(btn_x, height - 2, "確定")
-        self._btn_cancel = Button(btn_x + 8, height - 2, "取消")
+        self._btn_ok = Button(btn_x, height - 2, '確定')
+        self._btn_cancel = Button(btn_x + 8, height - 2, '取消')
 
         self._btn_ok.on(Event.CLICK, self._on_click_ok)
         self._btn_cancel.on(Event.CLICK, self._on_click_cancel)

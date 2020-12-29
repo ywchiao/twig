@@ -29,7 +29,7 @@ class Viewport:
     def move_cursor(self, x: int, y: int) -> None:
         self._win.move(y, x)
         y, x = self._win.getyx()
-        LogCat.log(f"   move_cursor: x- {x} y- {y}")
+        LogCat.log(f'   move_cursor: x- {x} y- {y}')
 
     @LogCat.log_func
     def move_to(self, x: int, y: int) -> None:
@@ -41,7 +41,7 @@ class Viewport:
     def print_line(
         self, x: int, y: int, text: str, attr: int = 0
     ) -> Viewport:
-        self._win.addstr(y, x, f"{text}", attr)
+        self._win.addstr(y, x, f'{text}', attr)
         self._win.clrtoeol()
         self._win.refresh()
 
@@ -51,7 +51,7 @@ class Viewport:
     def print_text(
         self, x: int, y: int, text: str, attr: int = 0
     ) -> Viewport:
-        self._win.addstr(y, x, f"{text}", attr)
+        self._win.addstr(y, x, f'{text}', attr)
         self._win.refresh()
 
         return self

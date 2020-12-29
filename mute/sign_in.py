@@ -1,8 +1,10 @@
 
-from dialog.dialog import Dialog
+from __future__ import annotations
+
 from event.event import Event
-from field.field import Field
-from label.label import Label
+from widget.dialog import Dialog
+from widget.field import Field
+from widget.label import Label
 
 from logcat.logcat import LogCat
 
@@ -17,12 +19,12 @@ class SignIn(Dialog):
         self._field_passwd = Field(8, 4, 12)
         self._field_passwd.on(Event.LINEFEED, self._on_linefeed_passwd)
 
-        self.add(Label(2, 2, "ID"))
+        self.add(Label(2, 2, 'ID'))
         self.add(self._field_id)
-        self.add(Label(2, 4, "密碼"))
+        self.add(Label(2, 4, '密碼'))
         self.add(self._field_passwd)
 
-        self.set_caption("登 入")
+        self.set_caption('登 入')
 
     @LogCat.log_func
     def _on_linefeed_id(self, e: Event) -> None:

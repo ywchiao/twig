@@ -1,11 +1,10 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from component.component import Component
 from const.color import Color
 from event.event import Event
+
 from logcat.logcat import LogCat
 
 class Field(Component):
@@ -13,18 +12,22 @@ class Field(Component):
     def __init__(self, x=0, y=0, width=80):
         super().__init__(x, y, width)
 
-        self._text = ""
-        self._place_holder = " " * width
+        self._text = ''
+        self._place_holder = ' ' * width
         self._max_len = width
 
         self._color = Color.INPUT_FIELD
 
-        self._handlers = {
-            Event.FOCUS_IN: lambda _: Event.trigger(Event(Event.CURSOR_ON)),
-            Event.FOCUS_OUT: lambda _: Event.trigger(Event(Event.CURSOR_OFF)),
-            Event.KEY_BACKSPACE: self._on_key_backspace,
-            Event.KEY_PRESSED: self._on_key_pressed,
-        }
+        self.on(
+            Event.FOCUS_IN,
+            lambda _: Event.trigger(Event(Event.CURSOR_ON))
+        )
+        self.on(
+            Event.FOCUS_OUT,
+            lambda _: Event.trigger(Event(Event.CURSOR_OFF))
+        )
+        self.on(Event.KEY_BACKSPACE, self._on_key_backspace)
+        self.on(Event.KEY_PRESSED, self._on_key_pressed)
 
     @LogCat.log_func
     def paint(self, win):
@@ -50,7 +53,7 @@ class Field(Component):
             self._text = self._handlers[Event.LINEFEED](self._text)
         else:
             if key == Event.LINEFEED:
-                key = ""
+                key = ''
 
             self._text += key
 

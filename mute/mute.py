@@ -1,26 +1,28 @@
 
 from app.app import App
 from event.event import Event
-from field.field import Field
-from logcat.logcat import LogCat
+from config.config import CONFIG
 from message.message import Message
-from net_io.net_io import NetIO
-from text_box.text_box import TextBox
-from window.window import Window
+from message.in_stream import InStream
+from message.out_stream import OutStream
+from mute.sign_in import SignIn
+from widget.field import Field
+from widget.text_box import TextBox
+from widget.window import Window
 
-from .sign_in import SignIn
+from logcat.logcat import LogCat
 
 class Mute(App):
     @LogCat.log_func
     def __init__(self, stdscr):
         super().__init__(stdscr)
 
-        self._user = "guest"
+        self._user = 'guest'
 
         self._text_box = TextBox(1, 1, 58, 19)
 
         self._content = Window(
-            0, 0, 60, 21, "MUTE: Multi-User Texting Environment"
+            0, 0, 60, 21, 'MUTE: Multi-User Texting Environment'
         )
         self._content.add(self._text_box)
 
@@ -41,15 +43,13 @@ class Mute(App):
 
         self.add(self._sign_in, True)
 
-        self._net_io = NetIO()
-        self._net_io.connect("127.0.0.1", 4004)
-
         self.on(Message.CHAT, self._on_msg_chat)
         self.on(Message.SYSTEM, self._on_msg_system)
-        self.on(Message.WELCOME, self._on_msg_welcome)
+        self.on(Message.TEXT, self._on_msg_text)
+        self.on(Message.SIGN_IN, self._on_msg_sign_in)
 
     def _in_stream(self) -> None:
-        for msg in self._net_io.recv():
+        for msg in InStream.instance('').read(self._socket):
             Event.trigger(
                 Event(msg.type, self, **msg.kwargs)
             )
@@ -64,9 +64,9 @@ class Mute(App):
     def _on_dlg_ok(self, e: Event) -> None:
         self._user = e.target.user_id
 
-        Event.trigger(
-            Event(
-                Event.SIGN_IN, self._net_io,
+        OutStream.instance('').append(
+            Message(
+                type=Event.SIGN_IN,
                 user_id=e.target.user_id,
                 passwd=e.target.passwd
             )
@@ -74,31 +74,36 @@ class Mute(App):
 
     @LogCat.log_func
     def _on_msg_chat(self, e: Event, who: str, text: str) -> None:
-        self._text_box.add_text(f"{who} 說： {text}")
+        self._text_box.add_text(f'{who} 說： {text}')
 
     @LogCat.log_func
     def _on_msg_entered(self, text: str) -> str:
-        Event.trigger(
-            Event(
-                Event.MSG_SEND, self._net_io,
-                type=Message.CHAT,
+        OutStream.instance('').append(
+            Message(
+                type=Message.TEXT,
                 who=self._user,
                 text=text
             )
         )
 
-        return ""
+        return ''
 
     @LogCat.log_func
     def _on_msg_system(self, e: Event, who: str, text: str) -> None:
-        self._text_box.add_text(f"{who} 說： {text}")
+        self._text_box.add_text(f'{who} 說： {text}')
 
     @LogCat.log_func
-    def _on_msg_welcome(self, e: Event, who: str, text: str) -> None:
-        self._text_box.add_text(text)
+    def _on_msg_text(self, e: Event, who: str, text: str) -> None:
+        self._text_box.add_text(f'  {text}')
 
+    @LogCat.log_func
+    def _on_msg_sign_in(self, e: Event, who: str) -> None:
         Event.trigger(
-            Event(Event.WIN_DISPLAY, self, uid=self._sign_in.uid, display=True)
+            Event(
+                Event.WIN_DISPLAY, self,
+                uid=self._sign_in.uid,
+                display=True
+            )
         )
 
     @LogCat.log_func

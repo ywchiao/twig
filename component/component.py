@@ -4,7 +4,8 @@ from __future__ import annotations
 import uuid
 
 from event.event import Event
-from handler.handler import Handler
+from event.handler import Handler
+
 from logcat.logcat import LogCat
 
 class Component(Handler):
